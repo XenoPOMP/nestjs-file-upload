@@ -11,6 +11,7 @@ import { CookieOptions, Response } from 'express';
 
 import type { User } from '~prisma/client';
 
+import { EnvironmentService } from '@/features/environment/environment.service';
 import { AuthDto } from '@/routes/auth/dto/auth.dto';
 import { UserService } from '@/routes/user/user.service';
 
@@ -23,6 +24,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly env: EnvironmentService,
   ) {}
 
   EXPIRE_DAY_REFRESH_TOKEN: number = 1;
@@ -71,16 +73,16 @@ export class AuthService {
 
   /** Returns config for cookie response. */
   private getResponseConfig(): CookieOptions {
-    const envMode =
-      this.configService.get<'dev' | 'prod' | undefined>('ENV_MODE') || 'dev';
+    const { APP_HOST } = this.env.schema;
+    const isProd = this.env.isProduction();
 
     return {
       httpOnly: true,
-      domain: this.configService.get('APP_HOST'),
+      domain: APP_HOST,
       // true if production
-      secure: envMode === 'prod',
-      // lax if production
-      sameSite: envMode === 'prod' ? 'strict' : 'none',
+      secure: isProd,
+      // lax allows GET request from another origins
+      sameSite: 'lax',
     };
   }
 
