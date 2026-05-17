@@ -1,9 +1,9 @@
-name: nestjs-template
+name: upload-service
 
 services:
   db:
     image: postgres:15-alpine
-    container_name: nestjs-template-compose-db
+    container_name: upload-service-compose-db
     restart: unless-stopped
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -24,7 +24,7 @@ services:
 
   backend:
     build: .
-    container_name: nestjs-template-backend
+    container_name: upload-service-backend
     restart: unless-stopped
     ports:
       - "${PORT:-4242}:4242"
