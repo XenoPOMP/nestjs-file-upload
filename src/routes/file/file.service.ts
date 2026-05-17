@@ -1,4 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { Express } from 'express';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { v6 as uuid } from 'uuid';
+
+import { PrismaService } from '@/features/prisma/prisma.service';
 
 @Injectable()
-export class FileService {}
+export class FileService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async uploadSingleFile(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<{ id: string }> {
+    const { originalname: name, mimetype: mimeType, buffer } = file;
+    const fileId = uuid();
+
+    // Try creating file
+    try {
+      await mkdir(`./uploads/${fileId}`, { recursive: true });
+      await writeFile(`./uploads/${fileId}/${name}`, buffer);
+    } catch {
+      throw new UnprocessableEntityException('Failed to upload file');
+    }
+
+    // Creating record inside database only if file has
+    // been successfully created
+    return this.prisma.upload.create({
+      data: {
+        id: fileId,
+        isPrivate: false,
+        filenameWithExtension: name,
+        mimeType: mimeType,
+        ownerId: userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+}
