@@ -26,10 +26,10 @@ model User {
 
 model Upload {
   id        String  @id @default(cuid())
+  filename  String
   owner     User    @relation(fields: [ownerId], references: [id])
   ownerId   String  @map("owner_id")
   isPrivate Boolean
-  filename  String
 
   @@map("file_uploads")
 }
