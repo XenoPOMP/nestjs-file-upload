@@ -31,6 +31,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
     networks:
       database:
         ipv4_address: 172.20.1.5
@@ -42,6 +44,7 @@ services:
 
 volumes:
   db_data:
+  uploads:
 
 networks:
   # 172.20.1.1-254

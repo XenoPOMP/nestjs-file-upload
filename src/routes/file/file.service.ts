@@ -12,9 +12,13 @@ export class FileService {
   async uploadSingleFile(
     userId: string,
     file: Express.Multer.File,
+    options?: {
+      isPrivate?: boolean;
+    },
   ): Promise<{ id: string }> {
     const { originalname: name, mimetype: mimeType, buffer } = file;
     const fileId = uuid();
+    const isPrivate: boolean = !!options?.isPrivate;
 
     // Try creating file
     try {
@@ -29,7 +33,7 @@ export class FileService {
     return this.prisma.upload.create({
       data: {
         id: fileId,
-        isPrivate: false,
+        isPrivate,
         filenameWithExtension: name,
         mimeType: mimeType,
         ownerId: userId,

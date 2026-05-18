@@ -1,6 +1,7 @@
 import {
   Controller,
   HttpStatus,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -25,7 +26,11 @@ export class FileController {
   async uploadFile(
     @CurrentUser('id') userId: string,
     @UploadedFile(new FileSizeValidationPipe()) file: Express.Multer.File,
+    @Query('private') privateKey: string | undefined,
   ): Promise<{ id: string }> {
-    return this.fileService.uploadSingleFile(userId, file);
+    const isPrivate: boolean = privateKey === 'true';
+    return this.fileService.uploadSingleFile(userId, file, {
+      isPrivate,
+    });
   }
 }
