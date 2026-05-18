@@ -1,6 +1,6 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { Express } from 'express';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { v6 as uuid } from 'uuid';
 
 import { PrismaService } from '@/features/prisma/prisma.service';
@@ -28,6 +28,7 @@ export class FileService {
       throw new UnprocessableEntityException('Failed to upload file');
     }
 
+    const { size } = await stat(`./uploads/${fileId}/${name}`);
     // Creating record inside database only if file has
     // been successfully created
     return this.prisma.upload.create({
@@ -37,6 +38,7 @@ export class FileService {
         filenameWithExtension: name,
         mimeType: mimeType,
         ownerId: userId,
+        sizeInBytes: size,
       },
       select: {
         id: true,

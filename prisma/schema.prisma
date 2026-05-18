@@ -33,6 +33,7 @@ model Upload {
 
   filenameWithExtension String @map("filename_with_extension")
   mimeType              String @map("mime_type")
+  sizeInBytes           Int    @map("size_in_bytes")
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @map("owner_id")
